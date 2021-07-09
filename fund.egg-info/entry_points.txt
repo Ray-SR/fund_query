@@ -1,0 +1,5 @@
+
+        [console_scripts]
+        savefund=fund:save
+        showfund=fund:show
+    

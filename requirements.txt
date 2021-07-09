@@ -1,0 +1,8 @@
+click==8.0.1
+importlib-metadata==4.6.1
+lxml==4.6.3
+selenium==3.141.0
+typing-extensions==3.10.0.0
+urllib3==1.26.6
+wcwidth==0.2.5
+zipp==3.5.0
