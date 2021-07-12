@@ -62,6 +62,7 @@ def save(code):
             code_list = f.readlines()
             if not code_list:
                 click.echo("未发现基金编码数据，请在funds.txt文件中分行填写")
+                return
             for code in code_list:
                 format_code = code.decode().replace("\n", "")
                 print(format_code)
