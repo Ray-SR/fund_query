@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import click
 from lxml import etree
@@ -6,7 +7,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 
 
-chrome_driver_path = "./chromedriver"
+chrome_driver_path = os.path.join(os.path.dirname(__file__), "chromedriver")
+results_path = os.path.join(os.path.dirname(__file__), "results")
+funds_path = os.path.join(os.path.dirname(__file__), "funds")
 
 
 def query(code):
@@ -55,7 +58,7 @@ def save(code):
 
     data_list = []
     if code == "all":
-        with open("./funds", "rb") as f:
+        with open(funds_path, "rb") as f:
             code_list = f.readlines()
             if not code_list:
                 click.echo("未发现基金编码数据，请在funds.txt文件中分行填写")
@@ -71,7 +74,7 @@ def save(code):
 
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     data_list.insert(0, (f"最后更新时间", now))
-    with open("./results", "wb") as f:
+    with open(results_path, "wb") as f:
         for data in data_list:
             text = f"{data[0]}: {data[1]}\n"
             f.write(text.encode())
@@ -83,7 +86,7 @@ def show():
     显示results.txt文件中的数据
     :return:
     """
-    with open("./results", "r") as f:
+    with open(results_path, "r") as f:
         lines = f.readlines()
         if not lines:
             click.echo("暂无数据，请使用savefund命令获取数据")
