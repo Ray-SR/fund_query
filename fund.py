@@ -1,5 +1,7 @@
+import asyncio
 import datetime
 import os
+from concurrent import futures
 
 import click
 from lxml import etree
@@ -11,8 +13,10 @@ chrome_driver_path = os.path.join(os.path.dirname(__file__), "chromedriver")
 results_path = os.path.join(os.path.dirname(__file__), "results")
 funds_path = os.path.join(os.path.dirname(__file__), "funds")
 
+executor = futures.ThreadPoolExecutor(max_workers=20)
 
-def query(code):
+
+async def query(code):
     """
     爬虫
     :param code: 基金编码
@@ -33,8 +37,10 @@ def query(code):
     chrome_opt.add_argument("--window-size=1920,1080")
 
     browser = webdriver.Chrome(options=chrome_opt, executable_path=chrome_driver_path)
-    browser.get(url)
-
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(executor, browser.get, url)
+    # browser.get(url)
+    print(f"success {code}")
     rate_rule = "//dl[@class='dataItem02']/dd[@class='dataNums']/span[2]/text()"
     name_rule = "//div[@class='fundDetail-tit']/div/text()"
     html_text = browser.page_source
@@ -63,12 +69,10 @@ def save(code):
             if not code_list:
                 click.echo("未发现基金编码数据，请在funds.txt文件中分行填写")
                 return
-            for code in code_list:
-                format_code = code.decode().replace("\n", "")
-                print(format_code)
-                name, rate = query(format_code)
+            code_list = [code.decode().replace("\n", "") for code in code_list]
+            data_list = asyncio.run(get_data(code_list))
+            # print(data_list)
 
-                data_list.append((name, rate))
     else:
         name, rate = query(code)
         data_list = [(name, rate)]
@@ -79,6 +83,12 @@ def save(code):
         for data in data_list:
             text = f"{data[0]}: {data[1]}\n"
             f.write(text.encode())
+
+
+async def get_data(code_list):
+    task_list = [query(code) for code in code_list]
+    data_list = await asyncio.gather(*task_list)
+    return data_list
 
 
 @click.command()
@@ -104,4 +114,4 @@ def show():
 
 
 if __name__ == '__main__':
-    show()
+    save()
