@@ -14,7 +14,7 @@
 
 - 命令行操作
 
-`savefund` 将基金数据爬取到`results.txt`文件中
+`savefund` 将基金数据爬取到`results.txt`文件中.
 
 `showfund` 在命令行显示基金数据
 ​
